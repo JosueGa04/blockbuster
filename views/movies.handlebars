@@ -1,0 +1,20 @@
+<div id="movies">
+  <h1>Blockbuster Movies</h1>
+  <div>
+    <ul>
+      {{#each movies}}
+        <li>
+          <h2>{{this.title}}</h2>
+          <p>Director: {{this.director}}</p>
+          <p>Release Year: {{this.year}}</p>
+          <p>Rating: {{this.rating}}</p>
+          <img
+            src="{{this.posterUrl}}"
+            alt="{{this.title}} Poster"
+            width="200"
+          />
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</div>
