@@ -1,18 +1,40 @@
 <div id="movies">
   <h1>Blockbuster Movies</h1>
   <div>
+    {{#if session.isAdmin}}
+      <p>
+        <a href="/movies/new" class="important">New Movie</a>
+      </p>
+    {{/if}}
     <ul>
       {{#each movies}}
         <li>
           <h2>{{this.title}}</h2>
+          {{#if ../session.isAdmin}}
+            <form
+              style="display:inline"
+              method="GET"
+              action="/movies/modify/{{this.id}}"
+              style="display:inline"
+            >
+              <button type="submit" class="important">Edit</button>
+            </form>
+            <form
+              method="POST"
+              action="/movies/delete/{{this.id}}"
+              style="display:inline"
+            >
+              <button type="submit" class="important">Delete</button>
+            </form>
+          {{/if}}
           <p>Director: {{this.director}}</p>
           <p>Release Year: {{this.year}}</p>
           <p>Rating: {{this.rating}}</p>
-          <img
-            src="{{this.posterUrl}}"
-            alt="{{this.title}} Poster"
-            width="200"
-          />
+          <a href="/movies/{{this.id}}"><img
+              src="{{this.posterUrl}}"
+              alt="{{this.title}} Poster"
+              width="200"
+            /></a>
         </li>
       {{/each}}
     </ul>

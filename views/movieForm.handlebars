@@ -1,0 +1,50 @@
+<div id="movieForm">
+  {{#if movie.id}}
+    <h1>Modify movie</h1>
+  {{else}}
+    <h1>New movie</h1>
+  {{/if}}
+  <div>
+    <form action="{{#if movie.id}}/movies/modify/{{movie.id}}{{else}}/movies/new{{/if}}" method="post" id="movieForm">
+      <fieldset>
+        <legend>Movie Details</legend>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required value="{{movie.title}}" />
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" required value="{{movie.year}}" />
+        <label for="genres">Genres:</label>
+        <input type="text" id="genres" name="genres" required value="{{movie.genres}}" />
+        <label for="director">Director:</label>
+        <input type="text" id="director" name="director" required value="{{movie.director}}" />
+        <label for="cast">Cast:</label>
+        <input type="text" id="cast" name="cast" required value="{{movie.cast}}" />
+        <label for="synopsis">Synopsis:</label>
+        <input type="text" id="synopsis" name="synopsis" required value="{{movie.synopsis}}" />
+        <label for="runtimeMinutes">Runtime Minutes:</label>
+        <input
+          type="number"
+          id="runtimeMinutes"
+          name="runtimeMinutes"
+          required
+          value="{{movie.runtimeMinutes}}"
+        />
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating" name="rating" required value="{{movie.rating}}" />
+        <label for="posterUrl">Poster URL:</label>
+        <input type="text" id="posterUrl" name="posterUrl" required value="{{movie.posterUrl}}" />
+        <label for="trailerUrl">Trailer URL:</label>
+        <input type="text" id="trailerUrl" name="trailerUrl" required value="{{movie.trailerUrl}}" />
+        <label for="availability">Availability:</label>
+        <input type="text" id="availability" name="availability" required value="{{movie.availability}}" />
+        <label for="language">Language:</label>
+        <input type="text" id="language" name="language" required value="{{movie.language}}" />
+        <label for="tags">Tags:</label>
+        <input type="text" id="tags" name="tags" required value="{{movie.tags}}" />
+        <input type="submit" value="{{#if movie.id}}Update{{else}}Create{{/if}}" />
+      </fieldset>
+    </form>
+    {{#if error}}
+      <p class="error">{{error}}</p>
+    {{/if}}
+  </div>
+</div>

@@ -15,6 +15,17 @@ const adminPassword =
   "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO";
 const bcrypt = require("bcrypt");
 
+app.engine(
+  "handlebars",
+  engine({
+    helpers: {
+      eq: (a, b) => {
+        return a === b;
+      },
+    },
+  })
+);
+
 // Handlebars Middleware
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -406,6 +417,207 @@ function initTableMovies(mytable) {
   );
 }
 
+function initTableReviews(mytable) {
+  const reviews = [
+    {
+      reviewId: 1,
+      movieId: 1,
+      userId: 2,
+      rating: 5,
+      comment: "A masterpiece, emotional and powerful.",
+      date: "2024-05-10",
+    },
+    {
+      reviewId: 2,
+      movieId: 1,
+      userId: 4,
+      rating: 4,
+      comment: "Amazing story, a bit slow but worth it.",
+      date: "2024-05-12",
+    },
+    {
+      reviewId: 3,
+      movieId: 5,
+      userId: 1,
+      rating: 5,
+      comment: "Heath Ledger as Joker is legendary.",
+      date: "2024-05-13",
+    },
+    {
+      reviewId: 4,
+      movieId: 7,
+      userId: 3,
+      rating: 4,
+      comment: "Great effects for its time!",
+      date: "2024-05-15",
+    },
+    {
+      reviewId: 5,
+      movieId: 9,
+      userId: 5,
+      rating: 5,
+      comment: "Mind-bending and iconic sci-fi.",
+      date: "2024-05-18",
+    },
+  ];
+
+  mytable.run(
+    `CREATE TABLE IF NOT EXISTS reviews (reviewId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rating INTEGER, comment TEXT, date TEXT)`,
+    (error) => {
+      if (error) {
+        console.log("Error", error);
+      } else {
+        console.log("Reviews table ready");
+      }
+    }
+  );
+
+  reviews.forEach((review) => {
+    mytable.run(
+      "INSERT INTO reviews (reviewId, movieId, userId, rating, comment, date) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        review.reviewId,
+        review.movieId,
+        review.userId,
+        review.rating,
+        review.comment,
+        review.date,
+      ],
+      (err) => {
+        if (err) {
+          console.log("Error inserting review:", err);
+        } else {
+          console.log("Review added to reviews table");
+        }
+      }
+    );
+  });
+}
+
+function initTableUsers(mytable) {
+  const users = [
+    { userId: 1, username: "admin", passwordHash: adminPassword, isAdmin: 1 },
+    {
+      userId: 2,
+      username: "johndoe",
+      passwordHash: "$2b$12$examplehash1",
+      isAdmin: 0,
+    },
+    {
+      userId: 3,
+      username: "janedoe",
+      passwordHash: "$2b$12$examplehash2",
+      isAdmin: 0,
+    },
+    {
+      userId: 4,
+      username: "alice",
+      passwordHash: "$2b$12$examplehash3",
+      isAdmin: 0,
+    },
+    {
+      userId: 5,
+      username: "bob",
+      passwordHash: "$2b$12$examplehash4",
+      isAdmin: 0,
+    },
+  ];
+
+  mytable.run(
+    `CREATE TABLE IF NOT EXISTS users (userId INTEGER PRIMARY KEY, username TEXT UNIQUE, passwordHash TEXT, isAdmin INTEGER)`,
+    (error) => {
+      if (error) {
+        console.log("Error", error);
+      } else {
+        console.log("Users table ready");
+      }
+
+      users.forEach((user) => {
+        mytable.run(
+          "INSERT INTO users (userId, username, passwordHash, isAdmin) VALUES (?, ?, ?, ?)",
+          [user.userId, user.username, user.passwordHash, user.isAdmin],
+          (err) => {
+            if (err) {
+              console.log("Error inserting user:", err);
+            } else {
+              console.log("User added to users table");
+            }
+          }
+        );
+      });
+    }
+  );
+}
+
+function initTableRentals(mytable) {
+  const rentals = [
+    {
+      rentalId: 1,
+      movieId: 1,
+      userId: 2,
+      rentalDate: "2024-06-01",
+      returnDate: "2024-06-05",
+      status: "returned",
+    },
+    {
+      rentalId: 2,
+      movieId: 3,
+      userId: 3,
+      rentalDate: "2024-06-02",
+      returnDate: null,
+      status: "rented",
+    },
+    {
+      rentalId: 3,
+      movieId: 5,
+      userId: 4,
+      rentalDate: "2024-06-03",
+      returnDate: "2024-06-07",
+      status: "returned",
+    },
+    {
+      rentalId: 4,
+      movieId: 2,
+      userId: 5,
+      rentalDate: "2024-06-04",
+      returnDate: null,
+      status: "rented",
+    },
+  ];
+
+  mytable.run(
+    `CREATE TABLE IF NOT EXISTS rentals (rentalId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rentalDate TEXT, returnDate TEXT, status TEXT)`,
+    (error) => {
+      if (error) {
+        console.log("Error", error);
+      } else {
+        console.log("Rentals table ready");
+      }
+    }
+  );
+
+  rentals.forEach((rental) => {
+    mytable.run(
+      "INSERT INTO rentals (rentalId, movieId, userId, rentalDate, returnDate, status) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        rental.rentalId,
+        rental.movieId,
+        rental.userId,
+        rental.rentalDate,
+        rental.returnDate,
+        rental.status,
+      ],
+      (err) => {
+        if (err) {
+          console.log("Error inserting rental:", err);
+        } else {
+          console.log("Rental added to rentals table");
+        }
+      }
+    );
+  });
+}
+
 // Static folder
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
@@ -444,6 +656,30 @@ app.get("/movies", function (req, res) {
   });
 });
 
+app.get("/movies/new", function (req, res) {
+  if (req.session.isAdmin) {
+    res.render("movieForm.handlebars");
+  } else {
+    model = { error: "You are not authorized to create movies." };
+    res.render("login.handlebars", model);
+  }
+});
+
+app.get("/movies/:id", function (req, res) {
+  let myMovieId = req.params.id;
+  db.get("SELECT * FROM movies WHERE id = ?", [myMovieId], (error, movie) => {
+    if (error) {
+      console.log("Error fetching movie:", error);
+      const model = { error: "Error fetching movie." };
+      res.render("movie.handlebars", model);
+    } else {
+      console.log("Movie fetched:", movie);
+      const model = { movie: movie };
+      res.render("movie.handlebars", model);
+    }
+  });
+});
+
 app.get("/contact", function (req, res) {
   res.render("contact.handlebars");
 });
@@ -475,25 +711,167 @@ app.post("/login", function (request, response) {
       if (err) {
         console.error("Error comparing passwords:", err);
         model = { error: "Error in password verification." };
-        response.render("login", model);
+        response.render("login.handlebars", model);
       }
       if (result) {
         request.session.isLoggedIn = true;
         request.session.un = request.body.username;
         request.session.isAdmin = true;
         console.log("---> SESSION INFO:", JSON.stringify(request.session));
-        response.render("loggedin");
+        response.render("loggedin.handlebars");
       } else {
         console.log("Wrong password!");
         model = { error: "Wrong password! Please try again." };
-        response.render("login", model);
+        response.render("login.handlebars", model);
       }
     });
   } else {
     console.log("Unknown user!");
     model = { error: "Unknown user! Please try again." };
-    response.render("login", model);
+    response.render("login.handlebars", model);
   }
+});
+
+app.post("/movies/new", function (req, res) {
+  const {
+    title,
+    year,
+    genres,
+    director,
+    cast,
+    synopsis,
+    runtimeMinutes,
+    rating,
+    posterUrl,
+    trailerUrl,
+    availability,
+    language,
+    tags,
+  } = req.body;
+  db.run(
+    "INSERT INTO movies (title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      title,
+      year,
+      genres,
+      director,
+      cast,
+      synopsis,
+      runtimeMinutes,
+      rating,
+      posterUrl,
+      trailerUrl,
+      availability,
+      language,
+      tags,
+    ],
+    (error) => {
+      if (error) {
+        console.log("Error inserting movie:", error);
+        model = { error: "Error inserting movie." };
+        res.render("movieForm.handlebars", model);
+      } else {
+        console.log("Movie inserted successfully");
+        model = { success: "Movie inserted successfully." };
+        res.render("movieForm.handlebars", model);
+      }
+    }
+  );
+});
+
+app.get("/movies/modify/:id", function (req, res) {
+  let myMovieId = req.params.id;
+  if (req.session.isAdmin) {
+    db.get("SELECT * FROM movies WHERE id = ?", [myMovieId], (error, movie) => {
+      if (error) {
+        console.error(err.message);
+        console.log("Error fetching movie:", error);
+        res.redirect("/login");
+      } else {
+        console.log("Movie fetched:", movie);
+        const model = { movie: movie };
+        res.render("movieForm.handlebars", model);
+      }
+    });
+  } else {
+    model = { error: "You are not authorized to modify movies." };
+    res.render("login.handlebars", model);
+  }
+});
+
+app.post("/movies/delete/:id", function (req, res) {
+  let myMovieId = req.params.id;
+
+  if (req.session.isAdmin) {
+    db.run("DELETE FROM movies WHERE id = ?", [myMovieId], (error) => {
+      if (error) {
+        console.error(err.message);
+        console.log("Error deleting movie:", error);
+        res.redirect("/login");
+      } else {
+        console.log("Movie deleted successfully");
+        res.redirect("/login");
+      }
+    });
+  } else {
+    model = { error: "You are not authorized to delete movies." };
+    res.render("login.handlebars", model);
+  }
+});
+
+app.post("/movies/modify/:id", function (req, res) {
+  const myMovieId = req.params.id;
+
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to modify movies." };
+    return res.render("login.handlebars", model);
+  }
+
+  const {
+    title,
+    year,
+    genres,
+    director,
+    cast,
+    synopsis,
+    runtimeMinutes,
+    rating,
+    posterUrl,
+    trailerUrl,
+    availability,
+    language,
+    tags,
+  } = req.body;
+
+  const sql = `UPDATE movies SET title = ?, year = ?, genres = ?, director = ?, cast = ?, synopsis = ?, runtimeMinutes = ?, rating = ?, posterUrl = ?, trailerUrl = ?, availability = ?, language = ?, tags = ? WHERE id = ?`;
+  const params = [
+    title,
+    year,
+    genres,
+    director,
+    cast,
+    synopsis,
+    runtimeMinutes,
+    rating,
+    posterUrl,
+    trailerUrl,
+    availability,
+    language,
+    tags,
+    myMovieId,
+  ];
+
+  db.run(sql, params, function (error) {
+    if (error) {
+      console.error("Error updating movie:", error);
+      const model = { error: "Error updating movie.", movie: req.body };
+      return res.render("movieForm.handlebars", model);
+    }
+
+    console.log("Movie updated successfully, rows changed:", this.changes);
+    // Redirect to the movie details page
+    res.redirect(`/movies/${myMovieId}`);
+  });
 });
 
 function hashPassword(pw, saltRounds) {
@@ -506,8 +884,20 @@ function hashPassword(pw, saltRounds) {
   });
 }
 
+app.use(function (req, res) {
+  res.status(404).render("404.handlebars");
+});
+
+app.use(function (req, res) {
+  console.log("-----> ERROR 500 <-----");
+  res.status(500).render("500.handlebars");
+});
+
 app.listen(PORT, () => {
   //initTableMovies(db);
+  //initTableUsers(db);
+  //initTableReviews(db);
+  //initTableRentals(db);
   hashPassword("wdf#2025", 12);
   console.log(`Server is running on http://localhost:${PORT}`);
 });

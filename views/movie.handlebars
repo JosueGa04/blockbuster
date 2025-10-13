@@ -1,0 +1,23 @@
+<div>
+  <h1>Movie Details</h1>
+  <div>
+    <p>Poster:</p>
+    <img src="{{movie.posterUrl}}" alt="{{movie.title}} Poster" width="200" />
+    <p>Title: {{movie.title}}</p>
+    <p>Year: {{movie.year}}</p>
+    <p>Genres: {{movie.genres}}</p>
+    <p>Director: {{movie.director}}</p>
+    <p>Cast: {{movie.cast}}</p>
+    <p>Synopsis: {{movie.synopsis}}</p>
+    <p>Runtime: {{movie.runtimeMinutes}}</p>
+    <p>Rating: {{movie.rating}}</p>
+    <p>Trailer: {{movie.trailerUrl}}</p>
+    <p>Availability: {{movie.availability}}</p>
+    <p>Language: {{movie.language}}</p>
+    <p>Tags: {{movie.tags}}</p>
+
+    {{#if error}}
+      <p class="error">{{error}}</p>
+    {{/if}}
+  </div>
+</div>
