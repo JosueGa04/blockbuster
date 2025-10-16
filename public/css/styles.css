@@ -1,0 +1,504 @@
+/* CSS Variables for Dark Theme */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-card: #1e1e1e;
+  --bg-card-hover: #262626;
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #2563eb;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(26, 26, 26, 0.7);
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Navbar */
+body > div:first-child {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+body > div:first-child a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+body > div:first-child a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-blue);
+}
+
+body > div:first-child a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: var(--accent-blue);
+  transition: transform 0.3s ease;
+}
+
+body > div:first-child a:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.emptyspace {
+  flex: 1;
+}
+
+/* Main Content Container */
+#about,
+#movies,
+#login,
+#movieForm,
+#contact,
+div[id="404"],
+#principal {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+/* Glassmorphism Navbar */
+body > div:first-child {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+body > div:first-child a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+body > div:first-child a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-blue);
+}
+
+body > div:first-child a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: var(--accent-blue);
+  transition: transform 0.3s ease;
+}
+
+body > div:first-child a:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.emptyspace {
+  flex: 1;
+}
+
+/* Specific styling for login container */
+#login .container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#login form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+#login h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Headings */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+/* Text Card */
+.mytextcard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+.mytextcard p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Movies Grid */
+#movies ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 0;
+}
+
+#movies li {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#movies li:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-blue);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px var(--shadow);
+}
+
+#movies li img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 1rem;
+  transition: transform 0.3s ease;
+}
+
+#movies li:hover img {
+  transform: scale(1.05);
+}
+
+#movies li p {
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+}
+
+#movies li a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+/* Buttons */
+button,
+.important,
+input[type="submit"],
+.submit-btn {
+  background: var(--accent-blue);
+  color: var(--text-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+}
+
+button:hover,
+.important:hover,
+input[type="submit"]:hover,
+.submit-btn:hover {
+  background: var(--accent-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Forms */
+form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+legend {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+input[type="submit"] {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+/* Contact Page Specific Styles */
+#contact {
+  max-width: 800px;
+}
+
+.contact-form-container {
+  margin-top: 2rem;
+}
+
+.contact-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(163, 163, 163, 0.5);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.success-message {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+/* Error Messages */
+.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+/* Movie Details Page */
+div > h1 + div {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+div > h1 + div img {
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+div > h1 + div p {
+  color: var(--text-secondary);
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+
+/* Error Pages */
+#principal,
+div[id="404"] {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+/* Improved movie form styling to target nested structure */
+#movieForm > div {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+#movieForm form {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Added styling for inline forms and buttons in movie list */
+#movies li form {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0.5rem 0.25rem 0.5rem 0;
+}
+
+#movies li button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Improved error page styling */
+#principal > div,
+div[id="404"] > div {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body > div:first-child {
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  #movies ul {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  #about,
+  #movies,
+  #login,
+  #movieForm,
+  #contact {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #movies ul {
+    grid-template-columns: 1fr;
+  }
+
+  body > div:first-child {
+    font-size: 0.9rem;
+  }
+
+  body > div:first-child a {
+    padding: 0.4rem 0.8rem;
+  }
+}
