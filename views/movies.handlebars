@@ -8,35 +8,79 @@
     {{/if}}
     <ul>
       {{#each movies}}
-        <li>
-          <h2>{{this.title}}</h2>
-          {{#if ../session.isAdmin}}
-            <form
-              style="display:inline"
-              method="GET"
-              action="/movies/modify/{{this.id}}"
-              style="display:inline"
-            >
-              <button type="submit" class="important">Edit</button>
-            </form>
-            <form
-              method="POST"
-              action="/movies/delete/{{this.id}}"
-              style="display:inline"
-            >
-              <button type="submit" class="important">Delete</button>
-            </form>
-          {{/if}}
-          <p>Director: {{this.director}}</p>
-          <p>Release Year: {{this.year}}</p>
-          <p>Rating: {{this.rating}}</p>
-          <a href="/movies/{{this.id}}"><img
-              src="{{this.posterUrl}}"
-              alt="{{this.title}} Poster"
-              width="200"
-            /></a>
+        <li class="movie-card">
+          {{! Wrapped image in container for consistent sizing }}
+          <div class="movie-poster">
+            <a href="/movies/{{this.id}}">
+              <img
+                src="{{this.posterUrl}}"
+                alt="{{this.title}} Poster"
+                width="200"
+              />
+            </a>
+          </div>
+          {{! Wrapped info in container for better layout }}
+          <div class="movie-info">
+            <h2>{{this.title}}</h2>
+            {{#if ../session.isAdmin}}
+              <div class="movie-actions">
+                <form
+                  method="GET"
+                  action="/movies/modify/{{this.id}}"
+                  style="display:inline"
+                >
+                  <button type="submit" class="important">Edit</button>
+                </form>
+                <form
+                  method="POST"
+                  action="/movies/delete/{{this.id}}"
+                  style="display:inline"
+                >
+                  <button type="submit" class="important">Delete</button>
+                </form>
+              </div>
+            {{/if}}
+            <p>Director: {{this.director}}</p>
+            <p>Release Year: {{this.year}}</p>
+            <p>Rating: {{this.rating}}</p>
+          </div>
         </li>
       {{/each}}
     </ul>
+
+    {{! Updated pagination controls with modern rounded button style }}
+    {{#if totalPages}}
+      <div class="pagination">
+        {{#if hasPrevious}}
+          <a href="/movies?page={{previousPage}}" class="pagination-btn pagination-arrow">
+            <span>&lt;</span>
+          </a>
+        {{else}}
+          <span class="pagination-btn pagination-arrow pagination-disabled">
+            <span>&lt;</span>
+          </span>
+        {{/if}}
+
+        {{#each pages}}
+          {{#if (eq this "...")}}
+            <span class="pagination-ellipsis">...</span>
+          {{else if (eq this ../currentPage)}}
+            <span class="pagination-btn pagination-active">{{this}}</span>
+          {{else}}
+            <a href="/movies?page={{this}}" class="pagination-btn">{{this}}</a>
+          {{/if}}
+        {{/each}}
+
+        {{#if hasNext}}
+          <a href="/movies?page={{nextPage}}" class="pagination-btn pagination-arrow">
+            <span>&gt;</span>
+          </a>
+        {{else}}
+          <span class="pagination-btn pagination-arrow pagination-disabled">
+            <span>&gt;</span>
+          </span>
+        {{/if}}
+      </div>
+    {{/if}}
   </div>
 </div>

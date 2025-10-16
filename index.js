@@ -1,35 +1,56 @@
-const { engine } = require("express-handlebars");
-const express = require("express");
-const path = require("path");
-const sqlite3 = require("sqlite3");
+const { engine } = require("express-handlebars")
+const express = require("express")
+const path = require("path")
+const sqlite3 = require("sqlite3")
+const bcrypt = require("bcrypt")
 
-const session = require("express-session");
-const connectSqlite3 = require("connect-sqlite3");
-const dbFile = "my-project-data.sqlite3.db";
-db = new sqlite3.Database(dbFile);
-const SQLiteStore = connectSqlite3(session);
+const session = require("express-session")
+const connectSqlite3 = require("connect-sqlite3")
+const dbFile = "my-project-data.sqlite3.db"
+const db = new sqlite3.Database(dbFile)
+const SQLiteStore = connectSqlite3(session)
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const adminPassword =
-  "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO";
-const bcrypt = require("bcrypt");
+const app = express()
+const PORT = process.env.PORT || 3000
+const adminPassword = "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO"
 
+// Handlebars Middleware
 app.engine(
   "handlebars",
   engine({
     helpers: {
       eq: (a, b) => {
-        return a === b;
+        return a === b
+      },
+      math: (a, operator, b) => {
+        a = Number.parseFloat(a)
+        b = Number.parseFloat(b)
+        switch (operator) {
+          case "+":
+            return a + b
+          case "-":
+            return a - b
+          case "*":
+            return a * b
+          case "/":
+            return a / b
+          default:
+            return 0
+        }
+      },
+      range: (start, end) => {
+        const result = []
+        for (let i = start; i <= end; i++) {
+          result.push(i)
+        }
+        return result
       },
     },
-  })
-);
+  }),
+)
 
-// Handlebars Middleware
-app.engine("handlebars", engine());
-app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "handlebars")
+app.set("views", path.join(__dirname, "views"))
 
 //Model
 function initTableMovies(mytable) {
@@ -109,8 +130,7 @@ function initTableMovies(mytable) {
       genres: ["Action", "Crime", "Drama"],
       director: "Christopher Nolan",
       cast: ["Christian Bale", "Heath Ledger"],
-      synopsis:
-        "Batman faces his greatest psychological and physical test when the Joker wreaks havoc on Gotham City.",
+      synopsis: "Batman faces his greatest psychological and physical test when the Joker wreaks havoc on Gotham City.",
       runtimeMinutes: 152,
       rating: 9.0,
       posterUrl: "/posters/dark_knight.jpg",
@@ -374,20 +394,20 @@ function initTableMovies(mytable) {
       language: "English",
       tags: ["classic", "romance", "wartime"],
     },
-  ];
+  ]
 
   db.run(
     `CREATE TABLE IF NOT EXISTS movies (id INTEGER PRIMARY KEY, title TEXT, year INTEGER, genres TEXT, director TEXT, cast TEXT, synopsis TEXT, runtimeMinutes INTEGER, rating REAL, posterUrl TEXT, trailerUrl TEXT, availability TEXT, language TEXT, tags TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error);
+        console.log("Error", error)
       } else {
-        console.log("Movies table ready");
+        console.log("Movies table ready")
       }
 
       movies.forEach((movie) => {
         db.run(
-          "INSERT INTO movies (id, title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO movies (id, title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             movie.id,
             movie.title,
@@ -406,15 +426,15 @@ function initTableMovies(mytable) {
           ],
           (err) => {
             if (err) {
-              console.log("Error inserting movie:", err);
+              console.log("Error inserting movie:", err)
             } else {
-              console.log("Line added to movies tables");
+              console.log("Line added to movies tables")
             }
-          }
-        );
-      });
-    }
-  );
+          },
+        )
+      })
+    },
+  )
 }
 
 function initTableReviews(mytable) {
@@ -459,39 +479,32 @@ function initTableReviews(mytable) {
       comment: "Mind-bending and iconic sci-fi.",
       date: "2024-05-18",
     },
-  ];
+  ]
 
   mytable.run(
     `CREATE TABLE IF NOT EXISTS reviews (reviewId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rating INTEGER, comment TEXT, date TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error);
+        console.log("Error", error)
       } else {
-        console.log("Reviews table ready");
+        console.log("Reviews table ready")
       }
-    }
-  );
+    },
+  )
 
   reviews.forEach((review) => {
     mytable.run(
       "INSERT INTO reviews (reviewId, movieId, userId, rating, comment, date) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        review.reviewId,
-        review.movieId,
-        review.userId,
-        review.rating,
-        review.comment,
-        review.date,
-      ],
+      [review.reviewId, review.movieId, review.userId, review.rating, review.comment, review.date],
       (err) => {
         if (err) {
-          console.log("Error inserting review:", err);
+          console.log("Error inserting review:", err)
         } else {
-          console.log("Review added to reviews table");
+          console.log("Review added to reviews table")
         }
-      }
-    );
-  });
+      },
+    )
+  })
 }
 
 function initTableUsers(mytable) {
@@ -521,15 +534,15 @@ function initTableUsers(mytable) {
       passwordHash: "$2b$12$examplehash4",
       isAdmin: 0,
     },
-  ];
+  ]
 
   mytable.run(
     `CREATE TABLE IF NOT EXISTS users (userId INTEGER PRIMARY KEY, username TEXT UNIQUE, passwordHash TEXT, isAdmin INTEGER)`,
     (error) => {
       if (error) {
-        console.log("Error", error);
+        console.log("Error", error)
       } else {
-        console.log("Users table ready");
+        console.log("Users table ready")
       }
 
       users.forEach((user) => {
@@ -538,15 +551,15 @@ function initTableUsers(mytable) {
           [user.userId, user.username, user.passwordHash, user.isAdmin],
           (err) => {
             if (err) {
-              console.log("Error inserting user:", err);
+              console.log("Error inserting user:", err)
             } else {
-              console.log("User added to users table");
+              console.log("User added to users table")
             }
-          }
-        );
-      });
-    }
-  );
+          },
+        )
+      })
+    },
+  )
 }
 
 function initTableRentals(mytable) {
@@ -583,44 +596,37 @@ function initTableRentals(mytable) {
       returnDate: null,
       status: "rented",
     },
-  ];
+  ]
 
   mytable.run(
     `CREATE TABLE IF NOT EXISTS rentals (rentalId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rentalDate TEXT, returnDate TEXT, status TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error);
+        console.log("Error", error)
       } else {
-        console.log("Rentals table ready");
+        console.log("Rentals table ready")
       }
-    }
-  );
+    },
+  )
 
   rentals.forEach((rental) => {
     mytable.run(
       "INSERT INTO rentals (rentalId, movieId, userId, rentalDate, returnDate, status) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        rental.rentalId,
-        rental.movieId,
-        rental.userId,
-        rental.rentalDate,
-        rental.returnDate,
-        rental.status,
-      ],
+      [rental.rentalId, rental.movieId, rental.userId, rental.rentalDate, rental.returnDate, rental.status],
       (err) => {
         if (err) {
-          console.log("Error inserting rental:", err);
+          console.log("Error inserting rental:", err)
         } else {
-          console.log("Rental added to rentals table");
+          console.log("Rental added to rentals table")
         }
-      }
-    );
-  });
+      },
+    )
+  })
 }
 
 // Static folder
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")))
+app.use(express.urlencoded({ extended: true }))
 
 app.use(
   session({
@@ -628,111 +634,168 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: "This123Is@Another#456GreatSecret678%Sentence",
-  })
-);
+  }),
+)
 
 app.use((req, res, next) => {
-  res.locals.session = req.session;
-  next();
-});
+  res.locals.session = req.session
+  next()
+})
 
 // Routes
-app.get("/", function (req, res) {
-  res.render("home.handlebars");
-});
+app.get("/", (req, res) => {
+  res.render("home.handlebars")
+})
 
-app.get("/about", function (req, res) {
-  res.render("about.handlebars");
-});
+app.get("/about", (req, res) => {
+  res.render("about.handlebars")
+})
 
-app.get("/movies", function (req, res) {
-  db.all("SELECT * FROM movies", (error, listOfMovies) => {
-    if (error) {
-      console.log("Error fetching movies:", error);
-    } else {
-      model = { movies: listOfMovies };
-      res.render("movies.handlebars", model);
-    }
-  });
-});
+app.get("/movies", (req, res) => {
+  const numberPerPage = 3
+  const currentPage = Number.parseInt(req.query.page) || 1
 
-app.get("/movies/new", function (req, res) {
-  if (req.session.isAdmin) {
-    res.render("movieForm.handlebars");
-  } else {
-    model = { error: "You are not authorized to create movies." };
-    res.render("login.handlebars", model);
+  // Validate page number
+  if (currentPage < 1) {
+    return res.redirect("/movies?page=1")
   }
-});
 
-app.get("/movies/:id", function (req, res) {
-  let myMovieId = req.params.id;
+  // Get total count of movies
+  db.get("SELECT COUNT(*) as total FROM movies", (error, result) => {
+    if (error) {
+      console.log("Error counting movies:", error)
+      const model = { error: "Error loading movies." }
+      return res.render("movies.handlebars", model)
+    }
+
+    const totalMovies = result.total
+    const totalPages = Math.ceil(totalMovies / numberPerPage)
+    const offset = (currentPage - 1) * numberPerPage
+
+    const pages = []
+    if (totalPages <= 8) {
+      // Show all pages if 8 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Show first 4, ellipsis, last 4
+      pages.push(1, 2, 3, 4)
+      pages.push("...")
+      pages.push(totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
+    }
+
+    // Fetch movies for current page
+    db.all("SELECT * FROM movies LIMIT ? OFFSET ?", [numberPerPage, offset], (error, listOfMovies) => {
+      if (error) {
+        console.log("Error fetching movies:", error)
+        const model = { error: "Error loading movies." }
+        res.render("movies.handlebars", model)
+      } else {
+        const model = {
+          movies: listOfMovies,
+          currentPage: currentPage,
+          totalPages: totalPages,
+          hasPrevious: currentPage > 1,
+          hasNext: currentPage < totalPages,
+          pages: pages,
+          previousPage: currentPage - 1,
+          nextPage: currentPage + 1,
+        }
+        res.render("movies.handlebars", model)
+      }
+    })
+  })
+})
+
+app.get("/movies/new", (req, res) => {
+  if (req.session.isAdmin) {
+    res.render("movieForm.handlebars")
+  } else {
+    const model = { error: "You are not authorized to create movies." }
+    res.render("login.handlebars", model)
+  }
+})
+
+app.get("/movies/:id", (req, res) => {
+  const myMovieId = req.params.id
   db.get("SELECT * FROM movies WHERE id = ?", [myMovieId], (error, movie) => {
     if (error) {
-      console.log("Error fetching movie:", error);
-      const model = { error: "Error fetching movie." };
-      res.render("movie.handlebars", model);
+      console.log("Error fetching movie:", error)
+      const model = { error: "Error fetching movie." }
+      res.render("movie.handlebars", model)
     } else {
-      console.log("Movie fetched:", movie);
-      const model = { movie: movie };
-      res.render("movie.handlebars", model);
+      console.log("Movie fetched:", movie)
+      const model = { movie: movie }
+      res.render("movie.handlebars", model)
     }
-  });
-});
+  })
+})
 
-app.get("/contact", function (req, res) {
-  res.render("contact.handlebars");
-});
+app.get("/contact", (req, res) => {
+  res.render("contact.handlebars")
+})
 
-app.get("/login", function (req, res) {
-  res.render("login.handlebars");
-});
+app.get("/login", (req, res) => {
+  res.render("login.handlebars")
+})
 
-app.get("/logout", function (req, res) {
+app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      console.log("Error destroying session:", err);
-      res.redirect("/");
+      console.log("Error destroying session:", err)
+      res.redirect("/")
     } else {
-      console.log("Logged out...");
-      res.redirect("/");
+      console.log("Logged out...")
+      res.redirect("/")
     }
-  });
-});
+  })
+})
 
-app.post("/login", function (request, response) {
-  console.log(
-    `Here comes the data received: ${request.body.username} - ${request.body.password}`
-  );
-  const { username, password } = request.body;
+app.post("/login", (request, response) => {
+  console.log(`Here comes the data received: ${request.body.username} - ${request.body.password}`)
+  const { username, password } = request.body
 
-  if (request.body.username === "admin") {
-    bcrypt.compare(request.body.password, adminPassword, (err, result) => {
+  db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
+    if (err) {
+      console.error("Database error:", err)
+      const model = { error: "Error accessing database." }
+      response.render("login.handlebars", model)
+      return
+    }
+
+    if (!user) {
+      console.log("Unknown user!")
+      const model = { error: "Unknown user! Please try again." }
+      response.render("login.handlebars", model)
+      return
+    }
+
+    bcrypt.compare(password, user.passwordHash, (err, result) => {
       if (err) {
-        console.error("Error comparing passwords:", err);
-        model = { error: "Error in password verification." };
-        response.render("login.handlebars", model);
+        console.error("Error comparing passwords:", err)
+        const model = { error: "Error in password verification." }
+        response.render("login.handlebars", model)
+        return
       }
-      if (result) {
-        request.session.isLoggedIn = true;
-        request.session.un = request.body.username;
-        request.session.isAdmin = true;
-        console.log("---> SESSION INFO:", JSON.stringify(request.session));
-        response.render("loggedin.handlebars");
-      } else {
-        console.log("Wrong password!");
-        model = { error: "Wrong password! Please try again." };
-        response.render("login.handlebars", model);
-      }
-    });
-  } else {
-    console.log("Unknown user!");
-    model = { error: "Unknown user! Please try again." };
-    response.render("login.handlebars", model);
-  }
-});
 
-app.post("/movies/new", function (req, res) {
+      if (result) {
+        request.session.isLoggedIn = true
+        request.session.un = user.username
+        request.session.isAdmin = user.isAdmin === 1
+        request.session.userId = user.userId
+        console.log("---> SESSION INFO:", JSON.stringify(request.session))
+        response.render("loggedin.handlebars")
+      } else {
+        console.log("Wrong password!")
+        const model = { error: "Wrong password! Please try again." }
+        response.render("login.handlebars", model)
+      }
+    })
+  })
+})
+
+app.post("/movies/new", (req, res) => {
   const {
     title,
     year,
@@ -747,7 +810,7 @@ app.post("/movies/new", function (req, res) {
     availability,
     language,
     tags,
-  } = req.body;
+  } = req.body
   db.run(
     "INSERT INTO movies (title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     [
@@ -767,64 +830,64 @@ app.post("/movies/new", function (req, res) {
     ],
     (error) => {
       if (error) {
-        console.log("Error inserting movie:", error);
-        model = { error: "Error inserting movie." };
-        res.render("movieForm.handlebars", model);
+        console.log("Error inserting movie:", error)
+        const model = { error: "Error inserting movie." }
+        res.render("movieForm.handlebars", model)
       } else {
-        console.log("Movie inserted successfully");
-        model = { success: "Movie inserted successfully." };
-        res.render("movieForm.handlebars", model);
+        console.log("Movie inserted successfully")
+        const model = { success: "Movie inserted successfully." }
+        res.render("movieForm.handlebars", model)
       }
-    }
-  );
-});
+    },
+  )
+})
 
-app.get("/movies/modify/:id", function (req, res) {
-  let myMovieId = req.params.id;
+app.get("/movies/modify/:id", (req, res) => {
+  const myMovieId = req.params.id
   if (req.session.isAdmin) {
     db.get("SELECT * FROM movies WHERE id = ?", [myMovieId], (error, movie) => {
       if (error) {
-        console.error(err.message);
-        console.log("Error fetching movie:", error);
-        res.redirect("/login");
+        console.error(error.message)
+        console.log("Error fetching movie:", error)
+        res.redirect("/login")
       } else {
-        console.log("Movie fetched:", movie);
-        const model = { movie: movie };
-        res.render("movieForm.handlebars", model);
+        console.log("Movie fetched:", movie)
+        const model = { movie: movie }
+        res.render("movieForm.handlebars", model)
       }
-    });
+    })
   } else {
-    model = { error: "You are not authorized to modify movies." };
-    res.render("login.handlebars", model);
+    const model = { error: "You are not authorized to modify movies." }
+    res.render("login.handlebars", model)
   }
-});
+})
 
-app.post("/movies/delete/:id", function (req, res) {
-  let myMovieId = req.params.id;
+app.post("/movies/delete/:id", (req, res) => {
+  const myMovieId = req.params.id
 
   if (req.session.isAdmin) {
     db.run("DELETE FROM movies WHERE id = ?", [myMovieId], (error) => {
       if (error) {
-        console.error(err.message);
-        console.log("Error deleting movie:", error);
-        res.redirect("/login");
+        console.error(error.message)
+        console.log("Error deleting movie:", error)
+        res.redirect("/login")
       } else {
-        console.log("Movie deleted successfully");
-        res.redirect("/login");
+        console.log("Movie deleted successfully")
+        res.redirect("/login")
       }
-    });
+    })
   } else {
-    model = { error: "You are not authorized to delete movies." };
-    res.render("login.handlebars", model);
+    const model = { error: "You are not authorized to delete movies." }
+    res.render("login.handlebars", model)
   }
-});
+})
 
-app.post("/movies/modify/:id", function (req, res) {
-  const myMovieId = req.params.id;
+app.post("/movies/modify/:id", (req, res) => {
+  const myMovieId = req.params.id
 
   if (!req.session.isAdmin) {
-    const model = { error: "You are not authorized to modify movies." };
-    return res.render("login.handlebars", model);
+    const model = { error: "You are not authorized to modify movies." }
+    return res.render("login.handlebars", model)
   }
 
   const {
@@ -841,9 +904,9 @@ app.post("/movies/modify/:id", function (req, res) {
     availability,
     language,
     tags,
-  } = req.body;
+  } = req.body
 
-  const sql = `UPDATE movies SET title = ?, year = ?, genres = ?, director = ?, cast = ?, synopsis = ?, runtimeMinutes = ?, rating = ?, posterUrl = ?, trailerUrl = ?, availability = ?, language = ?, tags = ? WHERE id = ?`;
+  const sql = `UPDATE movies SET title = ?, year = ?, genres = ?, director = ?, cast = ?, synopsis = ?, runtimeMinutes = ?, rating = ?, posterUrl = ?, trailerUrl = ?, availability = ?, language = ?, tags = ? WHERE id = ?`
   const params = [
     title,
     year,
@@ -859,45 +922,45 @@ app.post("/movies/modify/:id", function (req, res) {
     language,
     tags,
     myMovieId,
-  ];
+  ]
 
   db.run(sql, params, function (error) {
     if (error) {
-      console.error("Error updating movie:", error);
-      const model = { error: "Error updating movie.", movie: req.body };
-      return res.render("movieForm.handlebars", model);
+      console.error("Error updating movie:", error)
+      const model = { error: "Error updating movie.", movie: req.body }
+      return res.render("movieForm.handlebars", model)
     }
 
-    console.log("Movie updated successfully, rows changed:", this.changes);
+    console.log("Movie updated successfully, rows changed:", this.changes)
     // Redirect to the movie details page
-    res.redirect(`/movies/${myMovieId}`);
-  });
-});
+    res.redirect(`/movies/${myMovieId}`)
+  })
+})
 
 function hashPassword(pw, saltRounds) {
-  bcrypt.hash(pw, saltRounds, function (err, hash) {
+  bcrypt.hash(pw, saltRounds, (err, hash) => {
     if (err) {
-      console.error("Error hashing password:", err);
+      console.error("Error hashing password:", err)
     } else {
-      console.log("Hashed password:", hash);
+      console.log("Hashed password:", hash)
     }
-  });
+  })
 }
 
-app.use(function (req, res) {
-  res.status(404).render("404.handlebars");
-});
+app.use((req, res) => {
+  res.status(404).render("404.handlebars")
+})
 
-app.use(function (req, res) {
-  console.log("-----> ERROR 500 <-----");
-  res.status(500).render("500.handlebars");
-});
+app.use((req, res) => {
+  console.log("-----> ERROR 500 <-----")
+  res.status(500).render("500.handlebars")
+})
 
 app.listen(PORT, () => {
   //initTableMovies(db);
   //initTableUsers(db);
   //initTableReviews(db);
   //initTableRentals(db);
-  hashPassword("wdf#2025", 12);
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+  hashPassword("wdf#2025", 12)
+  console.log(`Server is running on http://localhost:${PORT}`)
+})
