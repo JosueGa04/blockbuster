@@ -10,7 +10,13 @@
       <a href="/">Home</a>
       <a href="/About">About</a>
       <a href="/Movies">Movies</a>
+      {{! Added Reviews link to navigation }}
+      <a href="/reviews">Reviews</a>
       <a href="/contact">Contact</a>
+      {{! Added admin-only link to user management }}
+      {{#if session.isAdmin}}
+        <a href="/admin/users">Manage Users</a>
+      {{/if}}
       <span class="emptyspace"> </span>
       {{#if session.isLoggedIn}}
         Hej,
