@@ -1,0 +1,100 @@
+<div id="reviews-page">
+  <h1>Movie Reviews</h1>
+  
+  {{#if error}}
+    <div class="error-message">
+      <p>{{error}}</p>
+    </div>
+  {{/if}}
+
+  {{#if reviews}}
+    {{! Using grid layout like movies page }}
+    <ul class="reviews-grid">
+      {{#each reviews}}
+        <li class="review-card">
+          {{! Movie poster section with fixed height }}
+          <div class="review-poster-container">
+            {{#if posterUrl}}
+              <img src="{{posterUrl}}" alt="{{title}} poster" />
+            {{else}}
+              <div class="no-poster">No Poster</div>
+            {{/if}}
+          </div>
+          
+          {{! Review content section with more focus }}
+          <div class="review-content">
+            <div class="review-movie-info">
+              <h2>{{title}}</h2>
+              <p class="movie-year">({{year}})</p>
+            </div>
+            
+            {{! Prominent rating display }}
+            <div class="review-rating">
+              <span class="rating-value">{{rating}}/10</span>
+              <div class="stars">
+                {{#if (eq rating 10)}}★★★★★{{/if}}
+                {{#if (eq rating 9)}}★★★★★{{/if}}
+                {{#if (eq rating 8)}}★★★★☆{{/if}}
+                {{#if (eq rating 7)}}★★★★☆{{/if}}
+                {{#if (eq rating 6)}}★★★☆☆{{/if}}
+                {{#if (eq rating 5)}}★★★☆☆{{/if}}
+                {{#if (eq rating 4)}}★★☆☆☆{{/if}}
+                {{#if (eq rating 3)}}★★☆☆☆{{/if}}
+                {{#if (eq rating 2)}}★☆☆☆☆{{/if}}
+                {{#if (eq rating 1)}}★☆☆☆☆{{/if}}
+              </div>
+            </div>
+            
+            {{! Review comment with more space }}
+            <p class="review-comment">"{{comment}}"</p>
+            
+            {{! Reviewer info at bottom }}
+            <div class="review-meta">
+              <span class="reviewer">— {{username}}</span>
+              <span class="review-date">{{date}}</span>
+            </div>
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+
+    {{! Updated pagination controls to match movies page exactly }}
+    {{#if totalPages}}
+      <div class="pagination">
+        {{#if hasPrevious}}
+          <a href="/reviews?page={{previousPage}}" class="pagination-btn pagination-arrow">
+            <span>&lt;</span>
+          </a>
+        {{else}}
+          <span class="pagination-btn pagination-arrow pagination-disabled">
+            <span>&lt;</span>
+          </span>
+        {{/if}}
+
+        {{#each pages}}
+          {{#if (eq this "...")}}
+            <span class="pagination-ellipsis">...</span>
+          {{else if (eq this ../currentPage)}}
+            <span class="pagination-btn pagination-active">{{this}}</span>
+          {{else}}
+            <a href="/reviews?page={{this}}" class="pagination-btn">{{this}}</a>
+          {{/if}}
+        {{/each}}
+
+        {{#if hasNext}}
+          <a href="/reviews?page={{nextPage}}" class="pagination-btn pagination-arrow">
+            <span>&gt;</span>
+          </a>
+        {{else}}
+          <span class="pagination-btn pagination-arrow pagination-disabled">
+            <span>&gt;</span>
+          </span>
+        {{/if}}
+      </div>
+    {{/if}}
+  {{else}}
+    <div class="mytextcard">
+      <p>No reviews available yet.</p>
+    </div>
+  {{/if}}
+</div>

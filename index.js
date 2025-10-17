@@ -3,6 +3,7 @@ const express = require("express")
 const path = require("path")
 const sqlite3 = require("sqlite3")
 const bcrypt = require("bcrypt")
+const multer = require("multer")
 
 const session = require("express-session")
 const connectSqlite3 = require("connect-sqlite3")
@@ -13,6 +14,8 @@ const SQLiteStore = connectSqlite3(session)
 const app = express()
 const PORT = process.env.PORT || 3000
 const adminPassword = "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO"
+
+const upload = multer({ dest: "public/img/" })
 
 // Handlebars Middleware
 app.engine(
@@ -52,579 +55,566 @@ app.engine(
 app.set("view engine", "handlebars")
 app.set("views", path.join(__dirname, "views"))
 
-//Model
+// Initialize database tables and sample data
+// Movies table
 function initTableMovies(mytable) {
-  const movies = [
-    {
-      id: 1,
-      title: "The Shawshank Redemption",
-      year: 1994,
-      genres: ["Drama"],
-      director: "Frank Darabont",
-      cast: ["Tim Robbins", "Morgan Freeman"],
-      synopsis:
-        "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-      runtimeMinutes: 142,
-      rating: 9.3,
-      posterUrl: "/img/posters/shawshank.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=NmzuHjWmXOc",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["classic", "prison", "redemption"],
-    },
-    {
-      id: 2,
-      title: "The Godfather",
-      year: 1972,
-      genres: ["Crime", "Drama"],
-      director: "Francis Ford Coppola",
-      cast: ["Marlon Brando", "Al Pacino"],
-      synopsis:
-        "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-      runtimeMinutes: 175,
-      rating: 9.2,
-      posterUrl: "/img/posters/godfather.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=sY1S34973zA",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["mafia", "epic", "family"],
-    },
-    {
-      id: 3,
-      title: "Pulp Fiction",
-      year: 1994,
-      genres: ["Crime", "Drama"],
-      director: "Quentin Tarantino",
-      cast: ["John Travolta", "Samuel L. Jackson", "Uma Thurman"],
-      synopsis:
-        "The lives of two mob hitmen, a boxer, a gangster's wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
-      runtimeMinutes: 154,
-      rating: 8.9,
-      posterUrl: "/posters/pulpfiction.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=s7EdQ4FqbhY",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["cult", "nonlinear", "dialogue"],
-    },
-    {
-      id: 4,
-      title: "Star Wars: A New Hope",
-      year: 1977,
-      genres: ["Sci-Fi", "Adventure"],
-      director: "George Lucas",
-      cast: ["Mark Hamill", "Harrison Ford", "Carrie Fisher"],
-      synopsis:
-        "Luke Skywalker joins forces with a Jedi Knight, a cocky pilot, a Wookiee, and two droids to save the galaxy from the Empire's world-destroying battle station.",
-      runtimeMinutes: 121,
-      rating: 8.6,
-      posterUrl: "/posters/starwars_a_new_hope.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=vZ734NWnAHA",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["space", "epic", "franchise"],
-    },
-    {
-      id: 5,
-      title: "The Dark Knight",
-      year: 2008,
-      genres: ["Action", "Crime", "Drama"],
-      director: "Christopher Nolan",
-      cast: ["Christian Bale", "Heath Ledger"],
-      synopsis: "Batman faces his greatest psychological and physical test when the Joker wreaks havoc on Gotham City.",
-      runtimeMinutes: 152,
-      rating: 9.0,
-      posterUrl: "/posters/dark_knight.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=EXeTwQWrcwY",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["superhero", "dark", "thriller"],
-    },
-    {
-      id: 6,
-      title: "Back to the Future",
-      year: 1985,
-      genres: ["Adventure", "Comedy", "Sci-Fi"],
-      director: "Robert Zemeckis",
-      cast: ["Michael J. Fox", "Christopher Lloyd"],
-      synopsis:
-        "A teenager is accidentally sent 30 years into the past in a time-traveling DeLorean invented by a slightly mad scientist.",
-      runtimeMinutes: 116,
-      rating: 8.5,
-      posterUrl: "/posters/back_to_the_future.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=qvsgGtivCgs",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["time travel", "80s", "family"],
-    },
-    {
-      id: 7,
-      title: "Jurassic Park",
-      year: 1993,
-      genres: ["Adventure", "Sci-Fi"],
-      director: "Steven Spielberg",
-      cast: ["Sam Neill", "Laura Dern", "Jeff Goldblum"],
-      synopsis:
-        "A pragmatic paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
-      runtimeMinutes: 127,
-      rating: 8.1,
-      posterUrl: "/posters/jurassic_park.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=lc0UehYemQA",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["dinosaurs", "adventure", "thriller"],
-    },
-    {
-      id: 8,
-      title: "Titanic",
-      year: 1997,
-      genres: ["Drama", "Romance"],
-      director: "James Cameron",
-      cast: ["Leonardo DiCaprio", "Kate Winslet"],
-      synopsis:
-        "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated RMS Titanic.",
-      runtimeMinutes: 195,
-      rating: 7.8,
-      posterUrl: "/posters/titanic.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=zCy5WQ9S4c0",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["romance", "epic", "historical"],
-    },
-    {
-      id: 9,
-      title: "The Matrix",
-      year: 1999,
-      genres: ["Action", "Sci-Fi"],
-      director: "The Wachowskis",
-      cast: ["Keanu Reeves", "Laurence Fishburne"],
-      synopsis:
-        "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
-      runtimeMinutes: 136,
-      rating: 8.7,
-      posterUrl: "/posters/matrix.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=vKQi3bBA1y8",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["cyberpunk", "philosophy", "action"],
-    },
-    {
-      id: 10,
-      title: "Raiders of the Lost Ark",
-      year: 1981,
-      genres: ["Action", "Adventure"],
-      director: "Steven Spielberg",
-      cast: ["Harrison Ford"],
-      synopsis:
-        "Archaeologist and adventurer Indiana Jones is hired by the U.S. government to find the Ark of the Covenant before the Nazis can obtain its awesome powers.",
-      runtimeMinutes: 115,
-      rating: 8.4,
-      posterUrl: "/posters/raiders.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=XkkzKHCx154",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["adventure", "classic", "action"],
-    },
-    {
-      id: 11,
-      title: "Forrest Gump",
-      year: 1994,
-      genres: ["Drama", "Romance"],
-      director: "Robert Zemeckis",
-      cast: ["Tom Hanks"],
-      synopsis:
-        "The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold through the perspective of an Alabama man with an IQ of 75.",
-      runtimeMinutes: 142,
-      rating: 8.8,
-      posterUrl: "/posters/forrestgump.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=bLvqoHBptjg",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["heartfelt", "drama", "history"],
-    },
-    {
-      id: 12,
-      title: "The Silence of the Lambs",
-      year: 1991,
-      genres: ["Crime", "Drama", "Thriller"],
-      director: "Jonathan Demme",
-      cast: ["Jodie Foster", "Anthony Hopkins"],
-      synopsis:
-        "A young FBI cadet must receive the help of an incarcerated and manipulative cannibal killer to catch another serial killer.",
-      runtimeMinutes: 118,
-      rating: 8.6,
-      posterUrl: "/posters/silencelambs.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=W6Mm8Sbe__o",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["thriller", "psychological", "crime"],
-    },
-    {
-      id: 13,
-      title: "Fight Club",
-      year: 1999,
-      genres: ["Drama"],
-      director: "David Fincher",
-      cast: ["Brad Pitt", "Edward Norton"],
-      synopsis:
-        "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much, much more.",
-      runtimeMinutes: 139,
-      rating: 8.8,
-      posterUrl: "/posters/fightclub.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=SUXWAEX2jlg",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["cult", "satire", "psychological"],
-    },
-    {
-      id: 14,
-      title: "The Lord of the Rings: The Fellowship of the Ring",
-      year: 2001,
-      genres: ["Adventure", "Fantasy"],
-      director: "Peter Jackson",
-      cast: ["Elijah Wood", "Ian McKellen"],
-      synopsis:
-        "A meek Hobbit from the Shire and eight companions set out on a journey to destroy the One Ring and save Middle-earth from the Dark Lord Sauron.",
-      runtimeMinutes: 178,
-      rating: 8.8,
-      posterUrl: "/posters/fellowship.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=V75dMMIW2B4",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["epic", "fantasy", "adventure"],
-    },
-    {
-      id: 15,
-      title: "E.T. the Extra-Terrestrial",
-      year: 1982,
-      genres: ["Family", "Sci-Fi"],
-      director: "Steven Spielberg",
-      cast: ["Henry Thomas", "Drew Barrymore"],
-      synopsis:
-        "A troubled child summons the courage to help a friendly alien escape Earth and return to his home planet.",
-      runtimeMinutes: 115,
-      rating: 7.8,
-      posterUrl: "/posters/et.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=qYAETtIIClk",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["family", "80s", "heartwarming"],
-    },
-    {
-      id: 16,
-      title: "Ghostbusters",
-      year: 1984,
-      genres: ["Comedy", "Fantasy"],
-      director: "Ivan Reitman",
-      cast: ["Bill Murray", "Dan Aykroyd", "Sigourney Weaver"],
-      synopsis:
-        "Three parapsychologists start a ghost-catching business in New York City and become unlikely local heroes.",
-      runtimeMinutes: 105,
-      rating: 7.8,
-      posterUrl: "/posters/ghostbusters.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=3X6gGv6x3y0",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["comedy", "supernatural", "80s"],
-    },
-    {
-      id: 17,
-      title: "Jaws",
-      year: 1975,
-      genres: ["Thriller", "Adventure"],
-      director: "Steven Spielberg",
-      cast: ["Roy Scheider", "Robert Shaw"],
-      synopsis:
-        "A giant man-eating great white shark arrives on the shores of a New England beach resort and wreaks havoc until a hunt is organized to kill it.",
-      runtimeMinutes: 124,
-      rating: 8.0,
-      posterUrl: "/posters/jaws.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=U1fu_sA7XhE",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["suspense", "classic", "thriller"],
-    },
-    {
-      id: 18,
-      title: "Terminator 2: Judgment Day",
-      year: 1991,
-      genres: ["Action", "Sci-Fi"],
-      director: "James Cameron",
-      cast: ["Arnold Schwarzenegger", "Linda Hamilton"],
-      synopsis:
-        "A cyborg, identical to the one who failed to kill Sarah Connor, must now protect her teenage son from a more advanced and powerful cyborg.",
-      runtimeMinutes: 137,
-      rating: 8.5,
-      posterUrl: "/posters/t2.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=CRRlbK5w8AE",
-      availability: ["DVD", "Blu-ray", "4K"],
-      language: "English",
-      tags: ["sci-fi", "action", "classic"],
-    },
-    {
-      id: 19,
-      title: "Alien",
-      year: 1979,
-      genres: ["Horror", "Sci-Fi"],
-      director: "Ridley Scott",
-      cast: ["Sigourney Weaver"],
-      synopsis:
-        "The crew of a commercial space tug encounters a deadly lifeform after investigating an unknown transmission.",
-      runtimeMinutes: 117,
-      rating: 8.4,
-      posterUrl: "/posters/alien.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=LjLamj-b0I8",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["horror", "sci-fi", "suspense"],
-    },
-    {
-      id: 20,
-      title: "Casablanca",
-      year: 1942,
-      genres: ["Drama", "Romance"],
-      director: "Michael Curtiz",
-      cast: ["Humphrey Bogart", "Ingrid Bergman"],
-      synopsis:
-        "A cynical expatriate American cafe owner struggles to decide whether or not to help his former lover and her fugitive husband escape French Morocco.",
-      runtimeMinutes: 102,
-      rating: 8.5,
-      posterUrl: "/posters/casablanca.jpg",
-      trailerUrl: "https://www.youtube.com/watch?v=BkL9l7qovsE",
-      availability: ["DVD", "Blu-ray"],
-      language: "English",
-      tags: ["classic", "romance", "wartime"],
-    },
-  ]
-
-  db.run(
+  mytable.run(
     `CREATE TABLE IF NOT EXISTS movies (id INTEGER PRIMARY KEY, title TEXT, year INTEGER, genres TEXT, director TEXT, cast TEXT, synopsis TEXT, runtimeMinutes INTEGER, rating REAL, posterUrl TEXT, trailerUrl TEXT, availability TEXT, language TEXT, tags TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error)
+        console.log("Error creating movies table:", error)
       } else {
         console.log("Movies table ready")
-      }
 
-      movies.forEach((movie) => {
-        db.run(
-          "INSERT INTO movies (id, title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          [
-            movie.id,
-            movie.title,
-            movie.year,
-            movie.genres.join(", "),
-            movie.director,
-            movie.cast.join(", "),
-            movie.synopsis,
-            movie.runtimeMinutes,
-            movie.rating,
-            movie.posterUrl,
-            movie.trailerUrl,
-            movie.availability.join(", "),
-            movie.language,
-            movie.tags.join(", "),
-          ],
-          (err) => {
-            if (err) {
-              console.log("Error inserting movie:", err)
-            } else {
-              console.log("Line added to movies tables")
-            }
-          },
-        )
-      })
+        mytable.get("SELECT COUNT(*) as count FROM movies", (err, result) => {
+          if (err) {
+            console.log("Error checking movies count:", err)
+          } else if (result.count < 10) {
+            const sampleMovies = [
+              {
+                title: "The Godfather",
+                year: 1972,
+                genres: "Crime, Drama",
+                director: "Francis Ford Coppola",
+                cast: "Marlon Brando, Al Pacino",
+                synopsis: "The aging patriarch of an organized crime dynasty transfers control to his reluctant son.",
+                runtimeMinutes: 175,
+                rating: 9.2,
+                posterUrl: "/the-godfather-poster.png",
+                trailerUrl: "https://www.youtube.com/watch?v=sY1S34973zA",
+                availability: "Available",
+                language: "English",
+                tags: "classic, mafia",
+              },
+              {
+                title: "Pulp Fiction",
+                year: 1994,
+                genres: "Crime, Drama",
+                director: "Quentin Tarantino",
+                cast: "John Travolta, Uma Thurman, Samuel L. Jackson",
+                synopsis:
+                  "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence.",
+                runtimeMinutes: 154,
+                rating: 8.9,
+                posterUrl: "/pulp-fiction-poster.png",
+                trailerUrl: "https://www.youtube.com/watch?v=s7EdQ4FqbhY",
+                availability: "Available",
+                language: "English",
+                tags: "cult, nonlinear",
+              },
+              {
+                title: "Star Wars: A New Hope",
+                year: 1977,
+                genres: "Sci-Fi, Adventure",
+                director: "George Lucas",
+                cast: "Mark Hamill, Harrison Ford, Carrie Fisher",
+                synopsis: "Luke Skywalker joins forces with a Jedi Knight to rescue a princess and save the galaxy.",
+                runtimeMinutes: 121,
+                rating: 8.6,
+                posterUrl: "/star-wars-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=vZ734NWnAHA",
+                availability: "Available",
+                language: "English",
+                tags: "space, epic",
+              },
+              {
+                title: "The Dark Knight",
+                year: 2008,
+                genres: "Action, Crime, Drama",
+                director: "Christopher Nolan",
+                cast: "Christian Bale, Heath Ledger",
+                synopsis: "Batman must accept one of the greatest psychological and physical tests to fight injustice.",
+                runtimeMinutes: 152,
+                rating: 9.0,
+                posterUrl: "/the-dark-knight-inspired-poster.png",
+                trailerUrl: "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+                availability: "Available",
+                language: "English",
+                tags: "superhero, dark",
+              },
+              {
+                title: "Back to the Future",
+                year: 1985,
+                genres: "Adventure, Comedy, Sci-Fi",
+                director: "Robert Zemeckis",
+                cast: "Michael J. Fox, Christopher Lloyd",
+                synopsis: "A teenager is accidentally sent 30 years into the past in a time-traveling DeLorean.",
+                runtimeMinutes: 116,
+                rating: 8.5,
+                posterUrl: "/back-to-the-future-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=qvsgGtivCgs",
+                availability: "Available",
+                language: "English",
+                tags: "time-travel, comedy",
+              },
+              {
+                title: "Jurassic Park",
+                year: 1993,
+                genres: "Adventure, Sci-Fi",
+                director: "Steven Spielberg",
+                cast: "Sam Neill, Laura Dern, Jeff Goldblum",
+                synopsis:
+                  "A theme park suffers a major power breakdown that allows its cloned dinosaur exhibits to run amok.",
+                runtimeMinutes: 127,
+                rating: 8.1,
+                posterUrl: "/jurassic-park-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=lc0UehYemQA",
+                availability: "Available",
+                language: "English",
+                tags: "dinosaurs, adventure",
+              },
+              {
+                title: "The Matrix",
+                year: 1999,
+                genres: "Action, Sci-Fi",
+                director: "Lana Wachowski, Lilly Wachowski",
+                cast: "Keanu Reeves, Laurence Fishburne",
+                synopsis:
+                  "A computer hacker learns about the true nature of his reality and his role in the war against its controllers.",
+                runtimeMinutes: 136,
+                rating: 8.7,
+                posterUrl: "/matrix-movie-poster.png",
+                trailerUrl: "https://www.youtube.com/watch?v=vKQi3bBA1y8",
+                availability: "Available",
+                language: "English",
+                tags: "cyberpunk, action",
+              },
+              {
+                title: "Forrest Gump",
+                year: 1994,
+                genres: "Drama, Romance",
+                director: "Robert Zemeckis",
+                cast: "Tom Hanks, Robin Wright",
+                synopsis: "The presidencies of Kennedy and Johnson unfold through the perspective of an Alabama man.",
+                runtimeMinutes: 142,
+                rating: 8.8,
+                posterUrl: "/forrest-gump-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=bLvqoHBptjg",
+                availability: "Available",
+                language: "English",
+                tags: "inspirational, drama",
+              },
+              {
+                title: "The Silence of the Lambs",
+                year: 1991,
+                genres: "Crime, Drama, Thriller",
+                director: "Jonathan Demme",
+                cast: "Jodie Foster, Anthony Hopkins",
+                synopsis:
+                  "A young FBI cadet must receive the help of an incarcerated cannibal killer to catch another serial killer.",
+                runtimeMinutes: 118,
+                rating: 8.6,
+                posterUrl: "/silence-of-the-lambs-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=W6Mm8Sbe__o",
+                availability: "Available",
+                language: "English",
+                tags: "thriller, psychological",
+              },
+              {
+                title: "Fight Club",
+                year: 1999,
+                genres: "Drama",
+                director: "David Fincher",
+                cast: "Brad Pitt, Edward Norton",
+                synopsis: "An insomniac office worker and a devil-may-care soap maker form an underground fight club.",
+                runtimeMinutes: 139,
+                rating: 8.8,
+                posterUrl: "/fight-club-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=qtRKdVHc-cE",
+                availability: "Available",
+                language: "English",
+                tags: "cult, psychological",
+              },
+              {
+                title: "The Lord of the Rings: The Fellowship of the Ring",
+                year: 2001,
+                genres: "Adventure, Fantasy",
+                director: "Peter Jackson",
+                cast: "Elijah Wood, Ian McKellen",
+                synopsis: "A meek Hobbit and eight companions set out on a journey to destroy the One Ring.",
+                runtimeMinutes: 178,
+                rating: 8.8,
+                posterUrl: "/lord-of-the-rings-movie-poster.jpg",
+                trailerUrl: "https://www.youtube.com/watch?v=V75dMMIW2B4",
+                availability: "Available",
+                language: "English",
+                tags: "fantasy, epic",
+              },
+              {
+                title: "Inception",
+                year: 2010,
+                genres: "Action, Sci-Fi, Thriller",
+                director: "Christopher Nolan",
+                cast: "Leonardo DiCaprio, Joseph Gordon-Levitt",
+                synopsis:
+                  "A thief who steals corporate secrets through dream-sharing technology is given the inverse task.",
+                runtimeMinutes: 148,
+                rating: 8.8,
+                posterUrl: "/inception-inspired-poster.png",
+                trailerUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0",
+                availability: "Available",
+                language: "English",
+                tags: "mind-bending, thriller",
+              },
+            ]
+
+            sampleMovies.forEach((movie) => {
+              mytable.run(
+                "INSERT OR IGNORE INTO movies (title, year, genres, director, cast, synopsis, runtimeMinutes, rating, posterUrl, trailerUrl, availability, language, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                  movie.title,
+                  movie.year,
+                  movie.genres,
+                  movie.director,
+                  movie.cast,
+                  movie.synopsis,
+                  movie.runtimeMinutes,
+                  movie.rating,
+                  movie.posterUrl,
+                  movie.trailerUrl,
+                  movie.availability,
+                  movie.language,
+                  movie.tags,
+                ],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting sample movie:", err)
+                  }
+                },
+              )
+            })
+            console.log("Added sample movies to reach 10+ records")
+          }
+        })
+      }
     },
   )
 }
 
+// Reviews table
 function initTableReviews(mytable) {
-  const reviews = [
-    {
-      reviewId: 1,
-      movieId: 1,
-      userId: 2,
-      rating: 5,
-      comment: "A masterpiece, emotional and powerful.",
-      date: "2024-05-10",
-    },
-    {
-      reviewId: 2,
-      movieId: 1,
-      userId: 4,
-      rating: 4,
-      comment: "Amazing story, a bit slow but worth it.",
-      date: "2024-05-12",
-    },
-    {
-      reviewId: 3,
-      movieId: 5,
-      userId: 1,
-      rating: 5,
-      comment: "Heath Ledger as Joker is legendary.",
-      date: "2024-05-13",
-    },
-    {
-      reviewId: 4,
-      movieId: 7,
-      userId: 3,
-      rating: 4,
-      comment: "Great effects for its time!",
-      date: "2024-05-15",
-    },
-    {
-      reviewId: 5,
-      movieId: 9,
-      userId: 5,
-      rating: 5,
-      comment: "Mind-bending and iconic sci-fi.",
-      date: "2024-05-18",
-    },
-  ]
-
   mytable.run(
     `CREATE TABLE IF NOT EXISTS reviews (reviewId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rating INTEGER, comment TEXT, date TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error)
+        console.log("Error creating reviews table:", error)
       } else {
         console.log("Reviews table ready")
+
+        mytable.get("SELECT COUNT(*) as count FROM reviews", (err, result) => {
+          if (err) {
+            console.log("Error checking reviews count:", err)
+          } else if (result.count < 10) {
+            const sampleReviews = [
+              { movieId: 2, userId: 1, rating: 10, comment: "An absolute masterpiece of cinema!", date: "2024-01-15" },
+              {
+                movieId: 3,
+                userId: 2,
+                rating: 9,
+                comment: "Tarantino at his finest. Unforgettable dialogue.",
+                date: "2024-01-20",
+              },
+              { movieId: 4, userId: 3, rating: 10, comment: "The force is strong with this one!", date: "2024-02-01" },
+              { movieId: 5, userId: 1, rating: 10, comment: "Best superhero movie ever made.", date: "2024-02-10" },
+              { movieId: 6, userId: 2, rating: 9, comment: "Time travel done right. So much fun!", date: "2024-02-15" },
+              { movieId: 7, userId: 3, rating: 8, comment: "Dinosaurs never looked so good!", date: "2024-03-01" },
+              {
+                movieId: 9,
+                userId: 1,
+                rating: 10,
+                comment: "Mind-bending action. Take the red pill!",
+                date: "2024-03-10",
+              },
+              { movieId: 11, userId: 2, rating: 9, comment: "Life is like a box of chocolates...", date: "2024-03-15" },
+              {
+                movieId: 12,
+                userId: 3,
+                rating: 10,
+                comment: "Terrifying and brilliant performance by Hopkins.",
+                date: "2024-03-20",
+              },
+              {
+                movieId: 13,
+                userId: 1,
+                rating: 9,
+                comment: "First rule: you don't talk about it.",
+                date: "2024-03-25",
+              },
+            ]
+
+            sampleReviews.forEach((review) => {
+              mytable.run(
+                "INSERT OR IGNORE INTO reviews (movieId, userId, rating, comment, date) VALUES (?, ?, ?, ?, ?)",
+                [review.movieId, review.userId, review.rating, review.comment, review.date],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting sample review:", err)
+                  }
+                },
+              )
+            })
+            console.log("Added sample reviews to reach 10+ records")
+          }
+        })
       }
     },
   )
-
-  reviews.forEach((review) => {
-    mytable.run(
-      "INSERT INTO reviews (reviewId, movieId, userId, rating, comment, date) VALUES (?, ?, ?, ?, ?, ?)",
-      [review.reviewId, review.movieId, review.userId, review.rating, review.comment, review.date],
-      (err) => {
-        if (err) {
-          console.log("Error inserting review:", err)
-        } else {
-          console.log("Review added to reviews table")
-        }
-      },
-    )
-  })
 }
 
+// Users table
 function initTableUsers(mytable) {
-  const users = [
-    { userId: 1, username: "admin", passwordHash: adminPassword, isAdmin: 1 },
-    {
-      userId: 2,
-      username: "johndoe",
-      passwordHash: "$2b$12$examplehash1",
-      isAdmin: 0,
-    },
-    {
-      userId: 3,
-      username: "janedoe",
-      passwordHash: "$2b$12$examplehash2",
-      isAdmin: 0,
-    },
-    {
-      userId: 4,
-      username: "alice",
-      passwordHash: "$2b$12$examplehash3",
-      isAdmin: 0,
-    },
-    {
-      userId: 5,
-      username: "bob",
-      passwordHash: "$2b$12$examplehash4",
-      isAdmin: 0,
-    },
-  ]
-
   mytable.run(
     `CREATE TABLE IF NOT EXISTS users (userId INTEGER PRIMARY KEY, username TEXT UNIQUE, passwordHash TEXT, isAdmin INTEGER)`,
     (error) => {
       if (error) {
-        console.log("Error", error)
+        console.log("Error creating users table:", error)
       } else {
         console.log("Users table ready")
-      }
 
-      users.forEach((user) => {
-        mytable.run(
-          "INSERT INTO users (userId, username, passwordHash, isAdmin) VALUES (?, ?, ?, ?)",
-          [user.userId, user.username, user.passwordHash, user.isAdmin],
-          (err) => {
-            if (err) {
-              console.log("Error inserting user:", err)
-            } else {
-              console.log("User added to users table")
-            }
-          },
-        )
-      })
+        mytable.get("SELECT COUNT(*) as count FROM users", (err, result) => {
+          if (err) {
+            console.log("Error checking users count:", err)
+          } else if (result.count < 10) {
+            const sampleUsers = [
+              {
+                username: "charlie_brown",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "diana_prince",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "edward_norton",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "fiona_apple",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "george_lucas",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "hannah_montana",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "ivan_drago",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+              {
+                username: "julia_roberts",
+                password: "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO",
+                isAdmin: 0,
+              },
+            ]
+
+            sampleUsers.forEach((user) => {
+              mytable.run(
+                "INSERT OR IGNORE INTO users (username, passwordHash, isAdmin) VALUES (?, ?, ?)",
+                [user.username, user.password, user.isAdmin],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting sample user:", err)
+                  }
+                },
+              )
+            })
+            console.log("Added sample users to reach 10+ records")
+          }
+        })
+      }
     },
   )
 }
 
+// Rentals table
 function initTableRentals(mytable) {
-  const rentals = [
-    {
-      rentalId: 1,
-      movieId: 1,
-      userId: 2,
-      rentalDate: "2024-06-01",
-      returnDate: "2024-06-05",
-      status: "returned",
-    },
-    {
-      rentalId: 2,
-      movieId: 3,
-      userId: 3,
-      rentalDate: "2024-06-02",
-      returnDate: null,
-      status: "rented",
-    },
-    {
-      rentalId: 3,
-      movieId: 5,
-      userId: 4,
-      rentalDate: "2024-06-03",
-      returnDate: "2024-06-07",
-      status: "returned",
-    },
-    {
-      rentalId: 4,
-      movieId: 2,
-      userId: 5,
-      rentalDate: "2024-06-04",
-      returnDate: null,
-      status: "rented",
-    },
-  ]
-
   mytable.run(
     `CREATE TABLE IF NOT EXISTS rentals (rentalId INTEGER PRIMARY KEY, movieId INTEGER, userId INTEGER, rentalDate TEXT, returnDate TEXT, status TEXT)`,
     (error) => {
       if (error) {
-        console.log("Error", error)
+        console.log("Error creating rentals table:", error)
       } else {
         console.log("Rentals table ready")
+
+        mytable.get("SELECT COUNT(*) as count FROM rentals", (err, result) => {
+          if (err) {
+            console.log("Error checking rentals count:", err)
+          } else if (result.count < 10) {
+            const sampleRentals = [
+              { movieId: 2, userId: 1, rentalDate: "2024-01-10", returnDate: "2024-01-17", status: "returned" },
+              { movieId: 3, userId: 2, rentalDate: "2024-01-15", returnDate: "2024-01-22", status: "returned" },
+              { movieId: 4, userId: 3, rentalDate: "2024-02-01", returnDate: "2024-02-08", status: "returned" },
+              { movieId: 5, userId: 1, rentalDate: "2024-02-10", returnDate: "2024-02-17", status: "returned" },
+              { movieId: 6, userId: 2, rentalDate: "2024-02-15", returnDate: null, status: "rented" },
+              { movieId: 7, userId: 3, rentalDate: "2024-03-01", returnDate: "2024-03-08", status: "returned" },
+              { movieId: 9, userId: 1, rentalDate: "2024-03-10", returnDate: null, status: "rented" },
+              { movieId: 11, userId: 2, rentalDate: "2024-03-15", returnDate: "2024-03-22", status: "returned" },
+              { movieId: 12, userId: 3, rentalDate: "2024-03-20", returnDate: null, status: "rented" },
+              { movieId: 13, userId: 1, rentalDate: "2024-03-25", returnDate: "2024-04-01", status: "returned" },
+            ]
+
+            sampleRentals.forEach((rental) => {
+              mytable.run(
+                "INSERT OR IGNORE INTO rentals (movieId, userId, rentalDate, returnDate, status) VALUES (?, ?, ?, ?, ?)",
+                [rental.movieId, rental.userId, rental.rentalDate, rental.returnDate, rental.status],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting sample rental:", err)
+                  }
+                },
+              )
+            })
+            console.log("Added sample rentals to reach 10+ records")
+          }
+        })
       }
     },
   )
+}
 
-  rentals.forEach((rental) => {
-    mytable.run(
-      "INSERT INTO rentals (rentalId, movieId, userId, rentalDate, returnDate, status) VALUES (?, ?, ?, ?, ?, ?)",
-      [rental.rentalId, rental.movieId, rental.userId, rental.rentalDate, rental.returnDate, rental.status],
-      (err) => {
+// Genres table
+function initTableGenres(mytable) {
+  const genres = [
+    { genreId: 1, genreName: "Action" },
+    { genreId: 2, genreName: "Adventure" },
+    { genreId: 3, genreName: "Comedy" },
+    { genreId: 4, genreName: "Crime" },
+    { genreId: 5, genreName: "Drama" },
+    { genreId: 6, genreName: "Fantasy" },
+    { genreId: 7, genreName: "Horror" },
+    { genreId: 8, genreName: "Romance" },
+    { genreId: 9, genreName: "Sci-Fi" },
+    { genreId: 10, genreName: "Thriller" },
+    { genreId: 11, genreName: "Family" },
+    { genreId: 12, genreName: "Mystery" },
+  ]
+
+  mytable.run(`CREATE TABLE IF NOT EXISTS genres (genreId INTEGER PRIMARY KEY, genreName TEXT UNIQUE)`, (error) => {
+    if (error) {
+      console.log("Error creating genres table:", error)
+    } else {
+      console.log("Genres table ready")
+
+      mytable.get("SELECT COUNT(*) as count FROM genres", (err, result) => {
         if (err) {
-          console.log("Error inserting rental:", err)
-        } else {
-          console.log("Rental added to rentals table")
+          console.log("Error checking genres:", err)
+        } else if (result.count === 0) {
+          genres.forEach((genre) => {
+            mytable.run(
+              "INSERT INTO genres (genreId, genreName) VALUES (?, ?)",
+              [genre.genreId, genre.genreName],
+              (err) => {
+                if (err) {
+                  console.log("Error inserting genre:", err)
+                }
+              },
+            )
+          })
         }
-      },
-    )
+      })
+    }
   })
 }
 
-// Static folder
+// Movie_Genres table
+function initTableMovieGenres(mytable) {
+  const movieGenres = [
+    // Movie ID 2: The Godfather - Crime, Drama
+    { id: 1, movieId: 2, genreId: 4 }, // Crime
+    { id: 2, movieId: 2, genreId: 5 }, // Drama
+
+    // Movie ID 3: Pulp Fiction - Crime, Drama
+    { id: 3, movieId: 3, genreId: 4 }, // Crime
+    { id: 4, movieId: 3, genreId: 5 }, // Drama
+
+    // Movie ID 4: Star Wars - Sci-Fi, Adventure
+    { id: 5, movieId: 4, genreId: 9 }, // Sci-Fi
+    { id: 6, movieId: 4, genreId: 2 }, // Adventure
+
+    // Movie ID 5: The Dark Knight - Action, Crime, Drama
+    { id: 7, movieId: 5, genreId: 1 }, // Action
+    { id: 8, movieId: 5, genreId: 4 }, // Crime
+    { id: 9, movieId: 5, genreId: 5 }, // Drama
+
+    // Movie ID 6: Back to the Future - Adventure, Comedy, Sci-Fi
+    { id: 10, movieId: 6, genreId: 2 }, // Adventure
+    { id: 11, movieId: 6, genreId: 3 }, // Comedy
+    { id: 12, movieId: 6, genreId: 9 }, // Sci-Fi
+
+    // Movie ID 7: Jurassic Park - Adventure, Sci-Fi
+    { id: 13, movieId: 7, genreId: 2 }, // Adventure
+    { id: 14, movieId: 7, genreId: 9 }, // Sci-Fi
+
+    // Movie ID 9: The Matrix - Action, Sci-Fi
+    { id: 15, movieId: 9, genreId: 1 }, // Action
+    { id: 16, movieId: 9, genreId: 9 }, // Sci-Fi
+
+    // Movie ID 11: Forrest Gump - Drama, Romance
+    { id: 17, movieId: 11, genreId: 5 }, // Drama
+    { id: 18, movieId: 11, genreId: 8 }, // Romance
+
+    // Movie ID 12: The Silence of the Lambs - Crime, Drama, Thriller
+    { id: 19, movieId: 12, genreId: 4 }, // Crime
+    { id: 20, movieId: 12, genreId: 5 }, // Drama
+    { id: 21, movieId: 12, genreId: 10 }, // Thriller
+
+    // Movie ID 13: Fight Club - Drama
+    { id: 22, movieId: 13, genreId: 5 }, // Drama
+
+    // Movie ID 14: The Lord of the Rings - Adventure, Fantasy
+    { id: 23, movieId: 14, genreId: 2 }, // Adventure
+    { id: 24, movieId: 14, genreId: 6 }, // Fantasy
+
+    // Movie ID 19: Alien - Horror, Sci-Fi
+    { id: 25, movieId: 19, genreId: 7 }, // Horror
+    { id: 26, movieId: 19, genreId: 9 }, // Sci-Fi
+
+    // Movie ID 20: Tron - Sci-Fi
+    { id: 27, movieId: 20, genreId: 9 }, // Sci-Fi
+  ]
+
+  mytable.run(
+    `CREATE TABLE IF NOT EXISTS movie_genres (id INTEGER PRIMARY KEY, movieId INTEGER, genreId INTEGER, FOREIGN KEY(movieId) REFERENCES movies(id), FOREIGN KEY(genreId) REFERENCES genres(genreId))`,
+    (error) => {
+      if (error) {
+        console.log("Error creating movie_genres table:", error)
+      } else {
+        console.log("Movie_genres table ready")
+
+        mytable.get("SELECT COUNT(*) as count FROM movie_genres", (err, result) => {
+          if (err) {
+            console.log("Error checking movie_genres:", err)
+          } else if (result.count === 0) {
+            // Only insert if table is empty
+            movieGenres.forEach((mg) => {
+              mytable.run(
+                "INSERT INTO movie_genres (id, movieId, genreId) VALUES (?, ?, ?)",
+                [mg.id, mg.movieId, mg.genreId],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting movie_genre:", err)
+                  }
+                },
+              )
+            })
+          }
+        })
+      }
+    },
+  )
+}
+
 app.use(express.static(path.join(__dirname, "public")))
 app.use(express.urlencoded({ extended: true }))
 
@@ -655,7 +645,6 @@ app.get("/movies", (req, res) => {
   const numberPerPage = 3
   const currentPage = Number.parseInt(req.query.page) || 1
 
-  // Validate page number
   if (currentPage < 1) {
     return res.redirect("/movies?page=1")
   }
@@ -736,6 +725,179 @@ app.get("/contact", (req, res) => {
   res.render("contact.handlebars")
 })
 
+// User management routes for admin
+app.get("/admin/users", (req, res) => {
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to manage users." }
+    return res.render("login.handlebars", model)
+  }
+
+  db.all("SELECT userId, username, isAdmin FROM users", (error, users) => {
+    if (error) {
+      console.log("Error fetching users:", error)
+      const model = { error: "Error loading users." }
+      res.render("admin-users.handlebars", model)
+    } else {
+      const model = { users: users }
+      res.render("admin-users.handlebars", model)
+    }
+  })
+})
+
+app.post("/admin/users/create", (req, res) => {
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to create users." }
+    return res.render("login.handlebars", model)
+  }
+
+  const { username, password, isAdmin } = req.body
+
+  if (!username || !password) {
+    db.all("SELECT userId, username, isAdmin FROM users", (error, users) => {
+      const model = {
+        users: users || [],
+        error: "Username and password are required.",
+      }
+      res.render("admin-users.handlebars", model)
+    })
+    return
+  }
+
+  // Hash the password
+  bcrypt.hash(password, 12, (err, hash) => {
+    if (err) {
+      console.error("Error hashing password:", err)
+      db.all("SELECT userId, username, isAdmin FROM users", (error, users) => {
+        const model = {
+          users: users || [],
+          error: "Error creating user.",
+        }
+        res.render("admin-users.handlebars", model)
+      })
+      return
+    }
+
+    // Insert new user
+    const isAdminValue = isAdmin === "on" ? 1 : 0
+    db.run(
+      "INSERT INTO users (username, passwordHash, isAdmin) VALUES (?, ?, ?)",
+      [username, hash, isAdminValue],
+      (error) => {
+        if (error) {
+          console.log("Error inserting user:", error)
+          db.all("SELECT userId, username, isAdmin FROM users", (error, users) => {
+            const model = {
+              users: users || [],
+              error: "Error creating user. Username might already exist.",
+            }
+            res.render("admin-users.handlebars", model)
+          })
+        } else {
+          console.log("User created successfully")
+          res.redirect("/admin/users")
+        }
+      },
+    )
+  })
+})
+
+app.get("/admin/users/edit/:id", (req, res) => {
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to edit users." }
+    return res.render("login.handlebars", model)
+  }
+
+  const userId = req.params.id
+  db.get("SELECT userId, username, isAdmin FROM users WHERE userId = ?", [userId], (error, user) => {
+    if (error) {
+      console.log("Error fetching user:", error)
+      res.redirect("/admin/users")
+    } else {
+      const model = { editUser: user }
+      res.render("admin-users.handlebars", model)
+    }
+  })
+})
+
+app.post("/admin/users/update/:id", (req, res) => {
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to update users." }
+    return res.render("login.handlebars", model)
+  }
+
+  const userId = req.params.id
+  const { username, password, isAdmin } = req.body
+
+  if (!username) {
+    return res.redirect("/admin/users")
+  }
+
+  const isAdminValue = isAdmin === "on" ? 1 : 0
+
+  // If password is provided, hash it and update everything
+  if (password && password.trim() !== "") {
+    bcrypt.hash(password, 12, (err, hash) => {
+      if (err) {
+        console.error("Error hashing password:", err)
+        return res.redirect("/admin/users")
+      }
+
+      db.run(
+        "UPDATE users SET username = ?, passwordHash = ?, isAdmin = ? WHERE userId = ?",
+        [username, hash, isAdminValue, userId],
+        (error) => {
+          if (error) {
+            console.log("Error updating user:", error)
+          } else {
+            console.log("User updated successfully with new password")
+          }
+          res.redirect("/admin/users")
+        },
+      )
+    })
+  } else {
+    // Update without changing password
+    db.run("UPDATE users SET username = ?, isAdmin = ? WHERE userId = ?", [username, isAdminValue, userId], (error) => {
+      if (error) {
+        console.log("Error updating user:", error)
+      } else {
+        console.log("User updated successfully")
+      }
+      res.redirect("/admin/users")
+    })
+  }
+})
+
+app.post("/admin/users/delete/:id", (req, res) => {
+  if (!req.session.isAdmin) {
+    const model = { error: "You are not authorized to delete users." }
+    return res.render("login.handlebars", model)
+  }
+
+  const userId = req.params.id
+
+  // Prevent admin from deleting themselves
+  if (Number.parseInt(userId) === req.session.userId) {
+    db.all("SELECT userId, username, isAdmin FROM users", (error, users) => {
+      const model = {
+        users: users || [],
+        error: "You cannot delete your own account.",
+      }
+      res.render("admin-users.handlebars", model)
+    })
+    return
+  }
+
+  db.run("DELETE FROM users WHERE userId = ?", [userId], (error) => {
+    if (error) {
+      console.log("Error deleting user:", error)
+    } else {
+      console.log("User deleted successfully")
+    }
+    res.redirect("/admin/users")
+  })
+})
+
 app.get("/login", (req, res) => {
   res.render("login.handlebars")
 })
@@ -795,7 +957,9 @@ app.post("/login", (request, response) => {
   })
 })
 
-app.post("/movies/new", (req, res) => {
+app.post("/movies/new", upload.single("posterImage"), (req, res) => {
+  const imagePath = req.file ? `/img/${req.file.filename}` : req.body.posterUrl
+
   const {
     title,
     year,
@@ -805,7 +969,6 @@ app.post("/movies/new", (req, res) => {
     synopsis,
     runtimeMinutes,
     rating,
-    posterUrl,
     trailerUrl,
     availability,
     language,
@@ -822,7 +985,7 @@ app.post("/movies/new", (req, res) => {
       synopsis,
       runtimeMinutes,
       rating,
-      posterUrl,
+      imagePath,
       trailerUrl,
       availability,
       language,
@@ -882,13 +1045,15 @@ app.post("/movies/delete/:id", (req, res) => {
   }
 })
 
-app.post("/movies/modify/:id", (req, res) => {
+app.post("/movies/modify/:id", upload.single("posterImage"), (req, res) => {
   const myMovieId = req.params.id
 
   if (!req.session.isAdmin) {
     const model = { error: "You are not authorized to modify movies." }
     return res.render("login.handlebars", model)
   }
+
+  const imagePath = req.file ? `/img/${req.file.filename}` : req.body.posterUrl
 
   const {
     title,
@@ -899,7 +1064,6 @@ app.post("/movies/modify/:id", (req, res) => {
     synopsis,
     runtimeMinutes,
     rating,
-    posterUrl,
     trailerUrl,
     availability,
     language,
@@ -916,7 +1080,7 @@ app.post("/movies/modify/:id", (req, res) => {
     synopsis,
     runtimeMinutes,
     rating,
-    posterUrl,
+    imagePath,
     trailerUrl,
     availability,
     language,
@@ -932,7 +1096,6 @@ app.post("/movies/modify/:id", (req, res) => {
     }
 
     console.log("Movie updated successfully, rows changed:", this.changes)
-    // Redirect to the movie details page
     res.redirect(`/movies/${myMovieId}`)
   })
 })
@@ -947,6 +1110,80 @@ function hashPassword(pw, saltRounds) {
   })
 }
 
+app.get("/reviews", (req, res) => {
+  const numberPerPage = 3
+  const currentPage = Number.parseInt(req.query.page) || 1
+
+  // Validate page number
+  if (currentPage < 1) {
+    return res.redirect("/reviews?page=1")
+  }
+
+  // Get total count of reviews
+  db.get("SELECT COUNT(*) as total FROM reviews", (error, result) => {
+    if (error) {
+      console.log("Error counting reviews:", error)
+      const model = { error: "Error loading reviews." }
+      return res.render("reviews.handlebars", model)
+    }
+
+    const totalReviews = result.total
+    const totalPages = Math.ceil(totalReviews / numberPerPage)
+    const offset = (currentPage - 1) * numberPerPage
+
+    const pages = []
+    if (totalPages <= 8) {
+      // Show all pages if 8 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Show first 4, ellipsis, last 4
+      pages.push(1, 2, 3, 4)
+      pages.push("...")
+      pages.push(totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
+    }
+
+    // Fetch reviews for current page with LIMIT and OFFSET
+    const sql = `
+      SELECT 
+        reviews.reviewId,
+        reviews.rating,
+        reviews.comment,
+        reviews.date,
+        movies.title,
+        movies.year,
+        movies.posterUrl,
+        users.username
+      FROM reviews
+      INNER JOIN movies ON reviews.movieId = movies.id
+      INNER JOIN users ON reviews.userId = users.userId
+      ORDER BY reviews.date DESC
+      LIMIT ? OFFSET ?
+    `
+
+    db.all(sql, [numberPerPage, offset], (error, reviews) => {
+      if (error) {
+        console.log("Error fetching reviews:", error)
+        const model = { error: "Error loading reviews." }
+        res.render("reviews.handlebars", model)
+      } else {
+        const model = {
+          reviews: reviews,
+          currentPage: currentPage,
+          totalPages: totalPages,
+          hasPrevious: currentPage > 1,
+          hasNext: currentPage < totalPages,
+          pages: pages,
+          previousPage: currentPage - 1,
+          nextPage: currentPage + 1,
+        }
+        res.render("reviews.handlebars", model)
+      }
+    })
+  })
+})
+
 app.use((req, res) => {
   res.status(404).render("404.handlebars")
 })
@@ -957,10 +1194,12 @@ app.use((req, res) => {
 })
 
 app.listen(PORT, () => {
-  //initTableMovies(db);
-  //initTableUsers(db);
-  //initTableReviews(db);
-  //initTableRentals(db);
+  initTableMovies(db)
+  initTableUsers(db)
+  initTableReviews(db)
+  initTableRentals(db)
+  initTableGenres(db)
+  initTableMovieGenres(db)
   hashPassword("wdf#2025", 12)
   console.log(`Server is running on http://localhost:${PORT}`)
 })

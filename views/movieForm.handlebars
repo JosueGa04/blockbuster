@@ -5,7 +5,8 @@
     <h1>New movie</h1>
   {{/if}}
   <div>
-    <form action="{{#if movie.id}}/movies/modify/{{movie.id}}{{else}}/movies/new{{/if}}" method="post" id="movieForm">
+    {{! Added enctype for file uploads and file input field }}
+    <form action="{{#if movie.id}}/movies/modify/{{movie.id}}{{else}}/movies/new{{/if}}" method="post" id="movieForm" enctype="multipart/form-data">
       <fieldset>
         <legend>Movie Details</legend>
         <label for="title">Title:</label>
@@ -29,9 +30,19 @@
           value="{{movie.runtimeMinutes}}"
         />
         <label for="rating">Rating:</label>
-        <input type="number" id="rating" name="rating" required value="{{movie.rating}}" />
-        <label for="posterUrl">Poster URL:</label>
-        <input type="text" id="posterUrl" name="posterUrl" required value="{{movie.posterUrl}}" />
+        <input type="number" id="rating" name="rating" required value="{{movie.rating}}" step="0.1" />
+        
+        {{! Added file input for poster image upload }}
+        <label for="posterImage">Upload Poster Image:</label>
+        <input type="file" id="posterImage" name="posterImage" accept="image/*" />
+        
+        {{! Made posterUrl optional since image can be uploaded }}
+        <label for="posterUrl">Or Poster URL:</label>
+        <input type="text" id="posterUrl" name="posterUrl" value="{{movie.posterUrl}}" />
+        {{#if movie.posterUrl}}
+          <p style="font-size: 0.9em; color: var(--text-secondary);">Current: {{movie.posterUrl}}</p>
+        {{/if}}
+        
         <label for="trailerUrl">Trailer URL:</label>
         <input type="text" id="trailerUrl" name="trailerUrl" required value="{{movie.trailerUrl}}" />
         <label for="availability">Availability:</label>
