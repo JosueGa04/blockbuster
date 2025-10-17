@@ -1,3 +1,20 @@
+/*
+
+Ricardo Hernandez - heri25ux@student.ju.se
+Josue Galindo - 
+
+Target grade: 5
+
+Project Web development Fundamentals 2025
+
+Admin login: admin
+Admin password: "wdf#2025" -> "$2b$12$RkX0Qkf8GvctcU6HxooMWuudfbAl/Cvvs4CzHvHqN.E.dlZJCgLnO"
+
+- Some code in this project was geneterated with the help of Vercel V0 AI tool.
+- Several images come from the web
+
+*/
+
 const { engine } = require("express-handlebars")
 const express = require("express")
 const path = require("path")
@@ -70,6 +87,8 @@ function initTableMovies(mytable) {
           if (err) {
             console.log("Error checking movies count:", err)
           } else if (result.count < 10) {
+
+            // Sample movies generated with the help of Vercel V0 AI tool
             const sampleMovies = [
               {
                 title: "The Godfather",
@@ -305,6 +324,8 @@ function initTableReviews(mytable) {
           if (err) {
             console.log("Error checking reviews count:", err)
           } else if (result.count < 10) {
+
+            // Sample reviews generated with the help of Vercel V0 AI tool
             const sampleReviews = [
               { movieId: 2, userId: 1, rating: 10, comment: "An absolute masterpiece of cinema!", date: "2024-01-15" },
               {
@@ -375,6 +396,8 @@ function initTableUsers(mytable) {
           if (err) {
             console.log("Error checking users count:", err)
           } else if (result.count < 10) {
+
+            // Sample users generated with the help of Vercel V0 AI tool
             const sampleUsers = [
               {
                 username: "charlie_brown",
@@ -451,6 +474,8 @@ function initTableRentals(mytable) {
           if (err) {
             console.log("Error checking rentals count:", err)
           } else if (result.count < 10) {
+
+            // Sample rentals generated with the help of Vercel V0 AI tool
             const sampleRentals = [
               { movieId: 2, userId: 1, rentalDate: "2024-01-10", returnDate: "2024-01-17", status: "returned" },
               { movieId: 3, userId: 2, rentalDate: "2024-01-15", returnDate: "2024-01-22", status: "returned" },
@@ -485,6 +510,8 @@ function initTableRentals(mytable) {
 
 // Genres table
 function initTableGenres(mytable) {
+
+  // Genres list generated with the help of Vercel V0 AI tool
   const genres = [
     { genreId: 1, genreName: "Action" },
     { genreId: 2, genreName: "Adventure" },
@@ -529,6 +556,8 @@ function initTableGenres(mytable) {
 
 // Movie_Genres table
 function initTableMovieGenres(mytable) {
+
+  // Movie-Genre associations generated with the help of Vercel V0 AI tool
   const movieGenres = [
     // Movie ID 2: The Godfather - Crime, Drama
     { id: 1, movieId: 2, genreId: 4 }, // Crime

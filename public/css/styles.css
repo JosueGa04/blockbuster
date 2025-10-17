@@ -477,6 +477,8 @@ textarea {
   transform: translateY(-2px);
 }
 
+
+//Responsive Design generated with the help of Vercel V0 AI tool
 /* Responsive Design */
 @media (max-width: 768px) {
   body > div:first-child {
@@ -618,6 +620,8 @@ textarea {
   font-weight: 500;
 }
 
+
+//Responsive Pagination generated with the help of Vercel V0 AI tool
 @media (max-width: 768px) {
   .pagination-btn {
     min-width: 40px;
