@@ -477,6 +477,115 @@ textarea {
   transform: translateY(-2px);
 }
 
+/* User Management Styles */
+#admin-users .form-group {
+  margin-bottom: 1.5rem;
+}
+
+#admin-users .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+#admin-users .form-group input[type="text"],
+#admin-users .form-group input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+#admin-users .form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+#admin-users .form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+#admin-users .users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+#admin-users .users-table thead {
+  background: var(--bg-secondary);
+}
+
+#admin-users .users-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+#admin-users .users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+#admin-users .users-table tbody tr {
+  transition: background 0.3s ease;
+}
+
+#admin-users .users-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+
+#admin-users .users-table .actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#admin-users .btn-edit {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+#admin-users .btn-edit:hover {
+  background: var(--accent-blue-hover);
+  transform: translateY(-2px);
+}
+
+#admin-users .btn-delete {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#admin-users .btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
 
 //Responsive Design generated with the help of Vercel V0 AI tool
 /* Responsive Design */

@@ -467,6 +467,7 @@ function initTableRentals(mytable) {
     (error) => {
       if (error) {
         console.log("Error creating rentals table:", error)
+        console.log("Error creating rentals table:", error)
       } else {
         console.log("Rentals table ready")
 
